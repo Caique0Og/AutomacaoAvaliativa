@@ -1,0 +1,10 @@
+/startup_presentation/
+│── main.py                # Ponto de entrada principal
+│── presentation.py        # Lógica principal de criação da apresentação
+│── chart.py               # Funções relacionadas ao gráfico/questionário
+│── utils.py               # Funções auxiliares (validações, cálculos)
+│── constants.py           # Constantes reutilizáveis (cores, posições)
+│── /templates/            # Pasta para imagens/modelos
+│   ├── img1.png
+│   ├── img2.png
+│   └── img3.png
