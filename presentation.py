@@ -50,8 +50,8 @@ def create_slide(prs, img_path, text_input, time_input, ternary_code,
         create_questionnaire_chart(slide, ternary_code)
 
     # Textos fixos
-    add_textbox(slide, text_input, 2.8, 0.4, font_size=14)  # nomeStartup
-    add_textbox(slide, time_input, 2.7, 0.6, font_size=12)  # carimbo 
+    add_textbox(slide, text_input, 8.5, 0.07, font_size=14)  # nomeStartup
+    add_textbox(slide, time_input, 8.5, 0.50, font_size=12)  # carimbo 
 
     # Lógica de exibição condicional
     if special_message and special_message['show_special']:
@@ -112,7 +112,7 @@ def add_reference_grid_slide(prs):
     Útil para posicionamento manual dos elementos.
     """
     slide = prs.slides.add_slide(prs.slide_layouts[6])
-    width = 10    # polegadas
+    width = 15    # polegadas
     height = 5.625
 
     # Desenha linhas verticais (cada 1 pol)

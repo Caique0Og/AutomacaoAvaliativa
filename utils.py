@@ -20,21 +20,27 @@ def check_respostas_absolutas(ternary_code):
         'escalar': "Controle para escalar Precisa de investimento",
         'lançar': "Controle para lançar",
         'finalizar': "Controle para finalizar o produto e levar ao mercado",
-        'prototipar': "Controle para prototipar"
+        'prototipar': "empresa controla as competências necessárias prototipar seu produto, precisando de investimento."
     }
     
+    mensagemPadrao = "Avaliados na entrevista de diagnóstico"
+    
     for grupo, dados in grupos.items():
-        # IMPORTANTE: Continua só contando '1's para respostas absolutas
         count = sum(1 for i in dados['indices'] if ternary_code[i] == '1')
         if count >= (len(dados['indices']) - dados['min'] + 1):
             return {
                 'show_special': True,
                 'message': mensagens[grupo],
-                'position': (1.3, 1.8),
-                'color': RGBColor(200, 200, 200)  # Cinza
+                'messagePadrao': mensagemPadrao,  # Nova mensagem padrão
+                'position': (4, 2.87),          # Posição da primeira caixa
+                'positionPadrao': (6, 2.87),     # Posição da nova caixa (ajuste conforme necessário)
+                'color': RGBColor(200, 200, 200), # Cor das caixas
             }
     
-    return {'show_special': False}
+    return {
+        'show_special': False,
+        'messagePadrao': mensagemPadrao  # Retorna a mensagem padrão mesmo quando não há respostas absolutas
+    }
 
 def analyze_tech_control(ternary_code):
     """Analisa o controle de tecnologia (agora considera 2=1)"""
@@ -77,12 +83,68 @@ def analyze_third_box(ternary_code):
     
 
 #Terceiro SLide:
-
 def check_prototipo_fase(ternary_code):
-    """Verifica se alguma das bolinhas 30-32 está marcada como 1"""
-    prototipo_indices = [29, 30, 31]  # Índices 30-32 no questionário (0-based)
+    """Verifica as marcações nos grupos 20-25, 27-29 ou 30-32 (1-based) e retorna mensagens específicas."""
+    # Definindo os grupos (índices 0-based)
+    grupo1 = [26, 27, 28]  # Posições 27-29 no questionário
+    grupo2 = [29, 30, 31]  # Posições 30-32 no questionário
+    grupo3 = [19, 20, 21, 22, 23, 24]  # Posições 20-25 no questionário (23 = índice 22)
     
-    if any(ternary_code[i] == '1' for i in prototipo_indices):
-        return True
-    else:
-        return False
+    # Verifica marcações em cada grupo
+    marcou_grupo1 = any(ternary_code[i] == '1' for i in grupo1)
+    marcou_grupo2 = any(ternary_code[i] == '1' for i in grupo2)
+    marcou_grupo3 = any(ternary_code[i] == '1' for i in grupo3)
+    
+    # Verifica conflitos entre grupos
+    grupos_marcados = sum([marcou_grupo1, marcou_grupo2, marcou_grupo3])
+    if grupos_marcados > 1:
+        raise ValueError(
+            "Erro: Você não pode marcar opções de múltiplos grupos simultaneamente. "
+            "Escolha apenas um grupo entre 20-25, 27-29 ou 30-32."
+        )
+    
+    # Lógica para Grupo 3 (20-25)
+    if marcou_grupo3:
+        # Verifica se marcou todas ou se apenas o 23 (índice 22) está como 0
+        marcou_todas = all(ternary_code[i] == '1' for i in grupo3)
+        apenas_23_nao = (ternary_code[22] == '0') and all(ternary_code[i] == '1' for i in grupo3 if i != 22)
+        
+        if marcou_todas or apenas_23_nao:
+            return (
+                "Go to market\n"
+                "Necessidade distribuída a ser identificada com o crescimento da operação, "
+                "por vezes, primeiro vem vendas, por outras, produção."
+            )
+        else:
+            # Adicione outras condições para o grupo3 aqui se necessário
+            return "Condição não especificada para o grupo 20-25"
+    
+    # Lógica para Grupo 1 (27-29)
+    if marcou_grupo1:
+        marca_27 = ternary_code[26] == '1'
+        marca_28 = ternary_code[27] == '1'
+        marca_29 = ternary_code[28] == '1'
+        
+        if marca_27 and marca_28 and marca_29:
+            return (
+                "Finalizar o desenvolvimento do produto\n"
+                "Necessidade distribuída a ser identificada com o lançamento da operação, "
+                "por vezes, primeiro vem vendas, por outras, produção."
+            )
+        elif marca_27 and marca_28:
+            return (
+                "Go to market (finalizar o desenvolvimento do produto)\n"
+                "Profissionais de marketing (promoção) e vendas (presumindo o controle da tecnologia)."
+            )
+        elif marca_28 and marca_29 or marca_27 or marca_28 or marca_29:
+            return (
+                "Go to market (validar o produto)\n"
+                "Nesse estágio aconselhamos formar um time com três perfis: tecnologia exigida pelo produto "
+                "('perfil hacker'), design de produto ('perfil hipster') e vendas/marketing ('perfil hustler')."
+            )
+    
+    # Lógica para Grupo 2 (30-32)
+    elif marcou_grupo2:
+        return "Lógica para prototipagem (Grupo 30-32) - Mensagem a ser definida."
+    
+    return None
