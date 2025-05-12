@@ -1,14 +1,12 @@
 from pptx.dml.color import RGBColor
 
 def validate_ternary_input(ternary_code, length=32):
-    """Valida input com 3 possibilidades (0, 1, 2)"""
     if len(ternary_code) != length or not all(c in ('0', '1', '2') for c in ternary_code):
         raise ValueError(f"O código deve ter {length} caracteres (0, 1 ou 2)")
 
 def check_respostas_absolutas(ternary_code):
-    """Verifica os casos de respostas absolutas (considera APENAS '1's)"""
     grupos = {
-        'tracionar': {'indices': [12,13,14,15,16,17], 'min': 2},  # Índices 0-based
+        'tracionar': {'indices': [12,13,14,15,16,17], 'min': 2},
         'escalar': {'indices': [5,6,7,9,10,11], 'min': 2},
         'lançar': {'indices': [20,21,22,23,24,25], 'min': 2},
         'finalizar': {'indices': [27,28,29], 'min': 2},
@@ -31,120 +29,80 @@ def check_respostas_absolutas(ternary_code):
             return {
                 'show_special': True,
                 'message': mensagens[grupo],
-                'messagePadrao': mensagemPadrao,  # Nova mensagem padrão
-                'position': (4, 2.87),          # Posição da primeira caixa
-                'positionPadrao': (6, 2.87),     # Posição da nova caixa (ajuste conforme necessário)
-                'color': RGBColor(200, 200, 200), # Cor das caixas
+                'messagePadrao': mensagemPadrao,
+                'position': (4.2, 3),
+                'positionPadrao': (7.5, 3),
+                'color': RGBColor(200, 200, 200),
             }
     
     return {
         'show_special': False,
-        'messagePadrao': mensagemPadrao  # Retorna a mensagem padrão mesmo quando não há respostas absolutas
+        'messagePadrao': mensagemPadrao
     }
 
+# ============= FUNÇÕES DE ANÁLISE ATUALIZADAS =============
 def analyze_tech_control(ternary_code):
-    """Analisa o controle de tecnologia (agora considera 2=1)"""
-    tech_indices = [8, 9, 12, 13, 19, 20, 25, 26, 27, 29, 30]
-    # CORREÇÃO: Agora conta tanto '1' quanto '2' como positivos
-    count = sum(1 for i in tech_indices if ternary_code[i] in ('1'))
+    """Analisa o controle tecnológico da startup"""
+    tech_indices = [0,1,2,3]  # Índices para controle tecnológico
+    score = sum(int(ternary_code[i]) for i in tech_indices)
     
-    if count >= 6:
-        return "Controle confirmado da tecnologia (análise preliminar)|Detalhes requerem entrevista"
-    elif count >= 3:
-        return "Déficit parcial no controle tecnológico (produto digital)|Verificação necessária"
+    if score >= 3:
+        return "Domínio tecnológico consolidado"
+    elif score >= 2:
+        return "Controle tecnológico adequado"
     else:
-        return "Déficit tecnológico identificado (análise inicial)|Avaliação detalhada requerida"
+        return "Recomenda-se fortalecer a base tecnológica"
 
 def analyze_second_box(ternary_code):
-    """Lógica para a segunda caixa (agora considera 2=1)"""
-    relevant_indices = [5, 6, 7, 8, 11, 15, 19, 22]
-    # CORREÇÃO: Agora conta tanto '1' quanto '2' como positivos
-    count = sum(1 for i in relevant_indices if ternary_code[i] in ('1'))
+    """Analisa a segunda caixa de questões"""
+    second_indices = [4,5,6,7,8,9,10,11]  # Índices para análise operacional
+    score = sum(int(ternary_code[i]) for i in second_indices)
     
-    if count >= 6:
-        return "Controle dos processos comerciais (análise preliminar)|Detalhes requerem entrevista"
-    elif count >= 3:
-        return "Possíveis lacunas identificadas (verificação necessária)"
+    if score >= 6:
+        return "Processos operacionais otimizados"
+    elif score >= 4:
+        return "Processos operacionais funcionais"
     else:
-        return "Déficit de mercado identificado (análise inicial)|Avaliação detalhada requerida"
+        return "Necessidade de revisão dos processos operacionais"
 
 def analyze_third_box(ternary_code):
-    """Lógica para a terceira caixa (agora considera 2=1)"""
-    relevant_indices = [12, 16, 17, 18, 23, 24, 29, 30, 31]
-    # CORREÇÃO: Agora conta tanto '1' quanto '2' como positivos
-    count = sum(1 for i in relevant_indices if ternary_code[i] in ('1'))
+    """Analisa a terceira caixa de questões"""
+    third_indices = [12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]  # Índices completos
+    score = sum(int(ternary_code[i]) for i in third_indices)
     
-    if count >= 6:
-        return "Controle nos processos operacionais (análise preliminar)"
-    elif count >= 3:
-        return "Possíveis lacunas operacionais (verificação necessária)"
+    if score >= 15:
+        return "Prontidão para mercado consolidada"
+    elif score >= 10:
+        return "Preparação em estágio intermediário"
     else:
-        return "Déficit operacional identificado (avaliação detalhada requerida)"
-    
+        return "Recomenda-se desenvolver capacidades antes de avançar"
 
-#Terceiro SLide:
+
 def check_prototipo_fase(ternary_code):
-    """Verifica as marcações nos grupos 20-25, 27-29 ou 30-32 (1-based) e retorna mensagens específicas."""
-    # Definindo os grupos (índices 0-based)
-    grupo1 = [26, 27, 28]  # Posições 27-29 no questionário
-    grupo2 = [29, 30, 31]  # Posições 30-32 no questionário
-    grupo3 = [19, 20, 21, 22, 23, 24]  # Posições 20-25 no questionário (23 = índice 22)
+    """Verifica marcações para o terceiro slide (único com \n)"""
+    grupos = {
+        'grupo1': {'indices': [4,5,6,7,8,9,10], 'min': 6, 'msg': {
+            'titulo': "Preparar para escalar",
+            'conteudo': "Necessidade distribuída com crescimento da operação"}},
+        'grupo2': {'indices': [11,12,13,14,15,16], 'min': 4, 'msg': {
+            'titulo': "Tracionar receita",
+            'conteudo': "Equipe comercial e marketing necessária"}},
+        'grupo3': {'indices': [19,20,21,22,23,24], 'min': 5, 'msg': {
+            'titulo': "Go to market",
+            'conteudo': "Necessidade distribuída com crescimento"}},
+        'grupo4': {'indices': [26,27,28], 'min': 3, 'msg': {
+            'titulo': "Finalizar produto",
+            'conteudo': "Preparação para lançamento no mercado"}},
+        'grupo5': {'indices': [30,31], 'min': 2, 'msg': {
+            'titulo': "Finalizar ideação",
+            'conteudo': "Time com perfis hacker, hipster e hustler"}}
+    }
+
+    mensagens = []
     
-    # Verifica marcações em cada grupo
-    marcou_grupo1 = any(ternary_code[i] == '1' for i in grupo1)
-    marcou_grupo2 = any(ternary_code[i] == '1' for i in grupo2)
-    marcou_grupo3 = any(ternary_code[i] == '1' for i in grupo3)
+    for grupo, dados in grupos.items():
+        count = sum(ternary_code[i] == '1' for i in dados['indices'])
+        if count >= dados['min']:
+            mensagens.append(dados['msg'])
     
-    # Verifica conflitos entre grupos
-    grupos_marcados = sum([marcou_grupo1, marcou_grupo2, marcou_grupo3])
-    if grupos_marcados > 1:
-        raise ValueError(
-            "Erro: Você não pode marcar opções de múltiplos grupos simultaneamente. "
-            "Escolha apenas um grupo entre 20-25, 27-29 ou 30-32."
-        )
-    
-    # Lógica para Grupo 3 (20-25)
-    if marcou_grupo3:
-        # Verifica se marcou todas ou se apenas o 23 (índice 22) está como 0
-        marcou_todas = all(ternary_code[i] == '1' for i in grupo3)
-        apenas_23_nao = (ternary_code[22] == '0') and all(ternary_code[i] == '1' for i in grupo3 if i != 22)
-        
-        if marcou_todas or apenas_23_nao:
-            return (
-                "Go to market\n"
-                "Necessidade distribuída a ser identificada com o crescimento da operação, "
-                "por vezes, primeiro vem vendas, por outras, produção."
-            )
-        else:
-            # Adicione outras condições para o grupo3 aqui se necessário
-            return "Condição não especificada para o grupo 20-25"
-    
-    # Lógica para Grupo 1 (27-29)
-    if marcou_grupo1:
-        marca_27 = ternary_code[26] == '1'
-        marca_28 = ternary_code[27] == '1'
-        marca_29 = ternary_code[28] == '1'
-        
-        if marca_27 and marca_28 and marca_29:
-            return (
-                "Finalizar o desenvolvimento do produto\n"
-                "Necessidade distribuída a ser identificada com o lançamento da operação, "
-                "por vezes, primeiro vem vendas, por outras, produção."
-            )
-        elif marca_27 and marca_28:
-            return (
-                "Go to market (finalizar o desenvolvimento do produto)\n"
-                "Profissionais de marketing (promoção) e vendas (presumindo o controle da tecnologia)."
-            )
-        elif marca_28 and marca_29 or marca_27 or marca_28 or marca_29:
-            return (
-                "Go to market (validar o produto)\n"
-                "Nesse estágio aconselhamos formar um time com três perfis: tecnologia exigida pelo produto "
-                "('perfil hacker'), design de produto ('perfil hipster') e vendas/marketing ('perfil hustler')."
-            )
-    
-    # Lógica para Grupo 2 (30-32)
-    elif marcou_grupo2:
-        return "Lógica para prototipagem (Grupo 30-32) - Mensagem a ser definida."
-    
-    return None
+    return mensagens if mensagens else None
